@@ -1,0 +1,165 @@
+﻿<Window x:Class="WpfClipboard.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfClipboard"
+        mc:Ignorable="d"
+        Name="win"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ShowActivated="True"
+        AllowsTransparency="True"
+        WindowStyle="None"
+        Title="MainWindow" 
+        Height="509" 
+        Width="355"
+        Loaded="Window_Loaded"
+        Cursor="Hand"
+        MouseMove="Grid_MouseMove"
+        >
+    <Window.Resources>
+        <ResourceDictionary >
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="./Styles/CloseButton.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <WindowChrome x:Key="WindowChromeKey">
+                <WindowChrome.ResizeBorderThickness>
+                    <Thickness>0</Thickness>
+                </WindowChrome.ResizeBorderThickness>
+            </WindowChrome>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Window.Background>
+        <SolidColorBrush Opacity="0.5" Color="Transparent"/>
+    </Window.Background>
+    <Grid>
+        <Border CornerRadius="5" 
+            BorderThickness="2" 
+            BorderBrush="Gray">
+            <Border.Background>
+                <SolidColorBrush Color="#eeeef0"/>
+            </Border.Background>
+            <DockPanel>
+                <Grid DockPanel.Dock="Top" 
+                      MouseMove="Grid_MouseMove">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="0"/>
+                        <RowDefinition Height="35"/>
+                        <RowDefinition Height="35"/>
+                    </Grid.RowDefinitions>
+                    <Button x:Name="closeBtn" 
+                            Grid.Row="0" 
+                            Style="{DynamicResource CloseButtonStyle}" 
+                            Width="20" 
+                            Height="20" 
+                            HorizontalAlignment="Right" 
+                            Opacity="1" 
+                            VerticalAlignment="Top" 
+                            Margin="1" 
+                            Background="Transparent" 
+                            Click="closeBtn_Click"/>
+                    <TextBlock Text="剪贴板 By Forty" 
+                               Foreground="Gray" 
+                               VerticalAlignment="Center" 
+                               HorizontalAlignment="Left" 
+                               Margin="5,0,0,0"  
+                               FontSize="15" 
+                               AllowDrop="True" 
+                               MouseLeftButtonDown="TextBlock_MouseLeftButtonDown"/>
+                    <Border  Grid.Row="2" 
+                             DockPanel.Dock="Top" 
+                             Height="28" 
+                             BorderBrush="#666" 
+                             CornerRadius="5" 
+                             BorderThickness="1" 
+                             Background="White"  
+                             Margin="30,0,90,0">
+                        <Grid  VerticalAlignment="Center">
+                            <Grid x:Name="gridSearch"></Grid>
+                            <Path  Margin="10,0,0,0" 
+                                   Height="13" 
+                                   Width="13" 
+                                   HorizontalAlignment="Left"   
+                                   Data="M722.623409 611.012923l278.449231 278.528a78.769231 78.769231 0 0 1-111.379692 111.379692L611.164948 722.471385a393.84615401 393.84615401 0 1 1 111.379692-111.379693zM393.99817799 630.15384601a236.307692 236.307692 0 1 0 0-472.61538402 236.307692 236.307692 0 0 0 0 472.615384z" 
+                                   Fill="#666"  
+                                   Stretch="Fill"/>
+                            <TextBox  x:Name="tbSearch" 
+                                      BorderThickness="0" 
+                                      BorderBrush="{x:Null}" 
+                                      Background="{x:Null}"  
+                                      Style="{x:Null}" 
+                                      Margin="30,0,10,0" 
+                                      CaretBrush="#666"  
+                                      VerticalAlignment="Center" 
+                                      FontSize="14" 
+                                      Foreground="#666" 
+                                      SelectionChanged="tbSearch_SelectionChanged" />
+                        </Grid>
+                    </Border>
+                    <Border Cursor="Hand" 
+                            MouseLeftButtonUp="Border_MouseLeftButtonDown"
+                            Grid.Row="2" Margin="0,0,29,0" 
+                            Background="Red" 
+                            CornerRadius="5"  
+                            HorizontalAlignment="Right"  
+                            Height="28" 
+                            Width="55">
+                        <TextBlock Foreground="White" 
+                                   Text="清空" FontSize="16" 
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center">
+
+                        </TextBlock>
+                    </Border>
+                    <StackPanel x:Name="tabList" Grid.Row="3"  Margin="25,0,20,4" Orientation="Horizontal">
+                        <Border Margin="5,0" CornerRadius="10" Background="#25AEF3"  Height="30" Width="50.5">
+                            <TextBlock Text="全部" 
+                                       Foreground="#FFF" 
+                                       FontSize="18" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center">
+
+                            </TextBlock>
+                        </Border>
+                        <Border Margin="5,0" CornerRadius="10" Background="#FFF"  Height="30" Width="50.5">
+                            <TextBlock Text="全部" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                            </TextBlock>
+                        </Border>
+                        <Border Margin="5,0" CornerRadius="10" Background="#FFF"  Height="30" Width="50.5">
+                            <TextBlock Text="全部" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                            </TextBlock>
+                        </Border>
+                        <Border Margin="5,0" CornerRadius="10" Background="#FFF"  Height="30" Width="50.5">
+                            <TextBlock Text="全部" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                            </TextBlock>
+                        </Border>
+                        <Border Margin="5,0" CornerRadius="10" Background="#FFF"  Height="30" Width="50.5">
+                            <TextBlock Text="全部" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+
+
+                </Grid>
+                <ScrollViewer  VerticalScrollBarVisibility="Auto">
+                    <StackPanel Orientation="Vertical"  >
+                        <StackPanel x:Name="itemTopList" Orientation="Vertical">
+                        </StackPanel>
+                        <StackPanel x:Name="itemList" Orientation="Vertical">
+                            <Border CornerRadius="10" Background="#FFF" Margin="29,10" Height="50">
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
+
+        </Border>
+    </Grid>
+
+</Window>
