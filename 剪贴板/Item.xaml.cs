@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,7 +25,7 @@ namespace WpfClipboard
         public Action<Item, ClipboardItem> onDelete;
         public Action<Item, bool> onTop;
         ClipboardItem clipboardItem;
-        bool flag = false;
+        bool flag = true;
         public void setXuHao(int i)
         {
             lbxuhao.Content = i + "";
@@ -33,6 +34,7 @@ namespace WpfClipboard
         {
             this.clipboardItem = clipboardItem;
             InitializeComponent();
+           
             tbText.Visibility = Visibility.Collapsed;
             img.Visibility = Visibility.Collapsed;
             switch (clipboardItem.Type)
@@ -104,10 +106,11 @@ namespace WpfClipboard
         {
             if (e.RightButton == MouseButtonState.Pressed)
             {
-                flag = true;
-                if (clipboardItem.Type == ClipboardType.Image && flag)
+                if (clipboardItem.Type == ClipboardType.Image)
                 {
-                    popup.IsOpen = true;
+                    flag = true;
+                    SetPopUpWin(flag);
+                    //flag = false;
                 }
             }
         }
@@ -115,27 +118,34 @@ namespace WpfClipboard
         {
             if (e.RightButton == MouseButtonState.Released)
             {
-                flag = false;
-                if (clipboardItem.Type == ClipboardType.Image && !flag)
+                if (clipboardItem.Type == ClipboardType.Image)
                 {
-                    popup.IsOpen = false;
+                    flag = false;
+                    SetPopUpWin(flag);
+                    //flag = true;
                 }
             }
         }
         private void Image_MouseEnter(object sender, MouseEventArgs e)
         {
-            if (clipboardItem.Type == ClipboardType.Image && flag)
+            if (clipboardItem.Type == ClipboardType.Image)
             {
-                //popup.IsOpen = true;}
-
+                flag = true;
             }
         }
         private void Image_MouseLeave(object sender, MouseEventArgs e)
         {
-            if (clipboardItem.Type == ClipboardType.Image && flag)
+ 
+            if (clipboardItem.Type == ClipboardType.Image)
             {
-                popup.IsOpen = false;
+                SetPopUpWin(false);
+                //flag= false;
             }
+        }
+        public void SetPopUpWin(bool b)
+        {
+            popup.IsOpen = b;
+            flag = b;
         }
     }
 }

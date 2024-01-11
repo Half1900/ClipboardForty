@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -20,13 +21,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Color = System.Windows.Media.Color;
 
 namespace WpfClipboard
 {
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class ClipForty : Window
     {
         List<ClipboardItem> clipboardItems = new List<ClipboardItem>();
         int ICopy=0;
@@ -34,8 +36,13 @@ namespace WpfClipboard
         private const int WM_CHANGECBCHAIN = 0x30D;
         private IntPtr mNextClipBoardViewerHWnd;
         ClipboardType tabSelect = ClipboardType.All;
-        bool tag = false;
         bool flagAltV = false;
+        bool topTag = true;
+        bool barTag = true;
+        int clickChangeTag = 0;
+
+        Config config = new Config();
+        
         System.Windows.Forms.NotifyIcon notifyIcon;
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
@@ -43,37 +50,251 @@ namespace WpfClipboard
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         static public extern bool ChangeClipboardChain(IntPtr HWnd, IntPtr HWndNext);
-
+        
         [DllImport("user32.dll")]
-        private static extern bool SetIcon(IntPtr hWnd, string iconPath);
+        static extern bool IsWindowVisible(IntPtr hWnd);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         static public extern int SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
         private IntPtr m_Hwnd = new IntPtr();
-        public MainWindow()
+        public ClipForty()
         {
-            Process[] processes = Process.GetProcesses();     //获得本机所有应用进程
-            int currentCount = 0;                              //记录程序打开次数
-            foreach (Process item in processes)                //循环本机所有应用进程名字
+            /*           Process[] processes = Process.GetProcesses();     //获得本机所有应用进程
+                       int currentCount = 0;                              //记录程序打开次数
+                       foreach (Process item in processes)                //循环本机所有应用进程名字
+                       {
+                           if (item.ProcessName == Process.GetCurrentProcess().ProcessName) //判断进程名字和本程序进程名字是否一致
+                           {
+                               currentCount += 1;
+                           }
+                       }
+                       if (currentCount > 1)     //本程序进程大于2就退出
+                       {
+                           MessageBox.Show("打开重复，应用程序已存在", "提示",MessageBoxButton.OK,MessageBoxImage.Information);
+                           Environment.Exit(1);
+                           return;
+                       }
+
+                       foreach (Process item in processes)
+                       {
+                           if (item.ProcessName == Process.GetCurrentProcess().ProcessName)
+                           {
+                               currentCount += 1;
+
+                               // 如果旧进程存在，尝试关闭它  
+                               if (item.Id != Process.GetCurrentProcess().Id)
+                               {
+                                   item.Kill();
+                               }
+                           }
+                       }
+
+                       if (currentCount > 1)
+                       {
+                           MessageBox.Show("打开重复，应用程序已存在", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                           Environment.Exit(1);
+                           return;
+                       }*/
+            
+              
+            string applicationName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;// 获取当前正在运行的应用程序进程列表
+            //MessageBox.Show(applicationName);                                                                                                      
+            Process[] processes = Process.GetProcesses(); // 获取当前正在运行的应用程序进程列表             
+            foreach (Process process in processes) // 遍历进程列表，查找与当前应用程序名称相同的进程  
             {
-                if (item.ProcessName == Process.GetCurrentProcess().ProcessName) //判断进程名字和本程序进程名字是否一致
+                if (process.ProcessName == applicationName && process.Id != Process.GetCurrentProcess().Id)
                 {
-                    currentCount += 1;
+                    process.CloseMainWindow();    // 关闭旧进程
+                    //MessageBox.Show("旧的应用程序已关闭", "提示", MessageBoxButton.OK, MessageBoxImage.Information); // 显示关闭成功消息框
                 }
             }
-            if (currentCount > 1)     //本程序进程大于2就退出
-            {
-                Environment.Exit(1);
-                return;
-            }
             InitializeComponent();
+            
+            Top = System.Windows.SystemParameters.PrimaryScreenHeight - this.Height - 50;
+            Left = System.Windows.SystemParameters.PrimaryScreenWidth - this.Width - 20;
             flagAltV = !flagAltV;
-            icon();
-            contextMenu();
+            Icons(true);
+            if (int.Parse(config.readstring("clickChangeTag")) >= GetIconCount(System.IO.Path.GetFullPath(@"image")))
+            {
+                clickChangeTag = 0;
+                config.write("clickChangeTag", clickChangeTag);
+            }           
             SetTab();
             DragMove();
+            if (config.readbool("barTag")== -1) {
+                config.write("barTag", barTag);
+            }
+            if (config.readbool("topTag") == -1)
+            {
+                config.write("topTag", topTag);
+            }
+            
             itemList.Children.Clear();
-            Topmost = true;
+            Topmost = config.readbool("topTag") == 1 ? true : false ;
+            this.showInTaskBar(config.readbool("barTag") == 1 ? true : false);
+            if (config.readbool("topTag") == 1)
+            {
+                top.Fill = new SolidColorBrush(Color.FromRgb(0xE0, 0x0B, 0xC4));
+            }
+            else
+            {
+                top.Fill = new SolidColorBrush(Color.FromRgb(0x5C, 0x5C, 0x66));
+            }
+            if (config.readbool("barTag") == 1)
+            {
+                statusBar.Fill = new SolidColorBrush(Color.FromRgb(0xE0, 0x0B, 0xC4));
+            }
+            else
+            {
+                statusBar.Fill = new SolidColorBrush(Color.FromRgb(0x5C, 0x5C, 0x66));
+            }
+        }
+        private void top_Click(object sender, RoutedEventArgs e)
+        {
+           
+        }
+        private void Status_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+        private void Setting_Down(object sender, RoutedEventArgs e)
+        {
+                     
+        }
+
+        private void BackTop_Up(object sender, RoutedEventArgs e)
+        {
+            scrollViewer.ScrollToVerticalOffset(0);
+        }
+        private void Enter_BackTop(object sender, RoutedEventArgs e)
+        {
+            backTop.Fill = new SolidColorBrush(Color.FromRgb(0x25, 0xAE, 0xF3));
+        }
+        private void Leave_BackTop(object sender, RoutedEventArgs e)
+        {
+            backTop.Fill = new SolidColorBrush(Color.FromRgb(0x5C, 0x5C, 0x66));
+
+        }
+
+        private void BackBottom_Up(object sender, RoutedEventArgs e)
+        {
+            scrollViewer.ScrollToVerticalOffset(scrollViewer.ScrollableHeight);
+        }
+        private void Enter_BackBottom(object sender, RoutedEventArgs e)
+        {
+            backBottom.Fill = new SolidColorBrush(Color.FromRgb(0x25, 0xAE, 0xF3));
+        }
+        private void Leave_BackBottom(object sender, RoutedEventArgs e)
+        {
+            backBottom.Fill = new SolidColorBrush(Color.FromRgb(0x5C, 0x5C, 0x66));
+
+        }
+
+        private void Setting_Up(object sender, RoutedEventArgs e)
+        {
+            //setting.Fill = Brushes.Red;
+            setting.Fill = new SolidColorBrush(Color.FromRgb(0x5C, 0x5C, 0x66));
+            Setting setWin = new Setting();
+            setWin.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            setWin.Owner = this;
+            setWin.ShowDialog();
+        }
+
+        private void Top_Up(object sender, RoutedEventArgs e)
+        {
+            topTag = !(config.readbool("topTag")==1?true:false);
+            config.write("topTag",topTag);
+            Topmost = topTag;
+            if (topTag)//已经置顶
+            {
+                top.Fill = new SolidColorBrush(Color.FromRgb(0xE0, 0x0B, 0xC4));
+            }
+            else
+            {
+                top.Fill = new SolidColorBrush(Color.FromRgb(0x5C, 0x5C, 0x66));
+            }               
+        }
+        private void Bar_Up(object sender, RoutedEventArgs e)
+        {
+            barTag = !(config.readbool("barTag") == 1 ? true : false); ;
+            config.write("barTag",barTag);
+            this.showInTaskBar(barTag);
+            if (barTag)
+            {
+                statusBar.Fill = new SolidColorBrush(Color.FromRgb(0xE0, 0x0B, 0xC4));
+            }
+            else
+            {
+                statusBar.Fill = new SolidColorBrush(Color.FromRgb(0x5C, 0x5C, 0x66));
+            }
+        }
+        private void Enter_Show(object sender, RoutedEventArgs e)
+        {
+
+            setting.Fill = new SolidColorBrush(Color.FromRgb(0x25, 0xAE, 0xF3));            
+        }
+        private void Enter_Leave(object sender, RoutedEventArgs e)
+        {
+            setting.Fill = new SolidColorBrush(Color.FromRgb(0x5C, 0x5C, 0x66));
+        }
+
+        private void Enter_Top(object sender, RoutedEventArgs e)
+        {
+            top.Fill = new SolidColorBrush(Color.FromRgb(0x25, 0xAE, 0xF3));
+        }
+        private void Leave_Top(object sender, RoutedEventArgs e)
+        {
+            if (config.readbool("topTag") == 1)
+            {
+                top.Fill = new SolidColorBrush(Color.FromRgb(0xE0, 0x0B, 0xC4));
+            }
+            else
+            {
+                top.Fill = new SolidColorBrush(Color.FromRgb(0x5C, 0x5C, 0x66));
+            }
+            
+        }
+        private void Enter_Bar(object sender, RoutedEventArgs e)
+        {
+            statusBar.Fill = new SolidColorBrush(Color.FromRgb(0x25, 0xAE, 0xF3));
+        }
+        private void Leave_Bar(object sender, RoutedEventArgs e)
+        {
+            if (config.readbool("barTag")==1)
+            {
+                statusBar.Fill = new SolidColorBrush(Color.FromRgb(0xE0, 0x0B, 0xC4));
+            }
+            else
+            {
+                statusBar.Fill = new SolidColorBrush(Color.FromRgb(0x5C, 0x5C, 0x66));
+            }
+            
+        }
+
+        private void Enter_Img(object sender, RoutedEventArgs e)
+        {
+
+           img.Fill = new SolidColorBrush(Color.FromRgb(0x25, 0xAE, 0xF3));
+        }
+        private void Img_Up(object sender, RoutedEventArgs e)
+        {
+            img.Fill = new SolidColorBrush(Color.FromRgb(0x5C, 0x5C, 0x66));
+            clickChangeTag++;                       
+            if (clickChangeTag >= GetIconCount(System.IO.Path.GetFullPath(@"image")))
+            {
+                clickChangeTag = 0;
+            }
+            config.write("clickChangeTag", clickChangeTag);
+            Icons(false);
+            Icons(true);
+        }
+        private void Img_Down(object sender, RoutedEventArgs e)
+        {
+            img.Fill = new SolidColorBrush(Color.FromRgb(0x25, 0xAE, 0xF3));
+        }
+            private void Leave_Img(object sender, RoutedEventArgs e)
+        {
+            img.Fill = new SolidColorBrush(Color.FromRgb(0x5C, 0x5C, 0x66));
         }
 
         private void MoveWindow(object sender, MouseButtonEventArgs e)
@@ -127,21 +348,89 @@ namespace WpfClipboard
             }
             
         }
-            private void icon()
+        
+        private void Icons(bool b)
         {
-            string path = System.IO.Path.GetFullPath(@"image/clipboard.ico");
-            System.Drawing.Icon nIcon = new System.Drawing.Icon(path);//程序图标
-            
+            if (b)
+            {
+                if (this.notifyIcon == null)
+                {
+                    this.notifyIcon = new System.Windows.Forms.NotifyIcon();
+                    // 可以添加其他初始化代码，如设置托盘图标的初始属性等  
+                }
+                string[] a = (string[])GetIcons(System.IO.Path.GetFullPath(@"image"));
+                clickChangeTag = int.Parse(config.readstring("clickChangeTag"));
+                //MessageBox.Show(a[clickChangeTag]+"---"+clickChangeTag);
+                Icon = new BitmapImage(new Uri(System.IO.Path.GetFullPath(@"image/" + a[clickChangeTag])));
+
+                if (clickChangeTag >= GetIconCount(System.IO.Path.GetFullPath(@"image")))
+                {
+                    clickChangeTag = 0;
+                    config.write("clickChangeTag", clickChangeTag);
+                }         
+                UpdateIcons(System.IO.Path.GetFullPath(@"image/" + a[int.Parse(config.readstring("clickChangeTag"))])); // 调用更新图标的函数  
+            }
+            else
+            {              
+               
+                notifyIcon.Visible = false; // 隐藏系统托盘图标  
+                notifyIcon = null;
+            }
+            if (notifyIcon != null)
+            {
+                contextMenu();
+            }
+           
+        }
+        private void UpdateIcons(string path)
+        {
             if (File.Exists(path))
             {
-                this.notifyIcon = new System.Windows.Forms.NotifyIcon();
-                this.notifyIcon.BalloonTipText = "剪切板"; 
-                this.notifyIcon.Text = "剪切板";
-                this.notifyIcon.Icon = nIcon; // System.Drawing.Icon.ExtractAssociatedIcon(System.Windows.Forms.Application.ExecutablePath) ;//
-                this.notifyIcon.Visible = true;
-                notifyIcon.MouseDoubleClick += NotifyIcon_MouseClick; 
-
+                
+                // 如果系统托盘图标存在，则更新图标  
+                //Icon newIcon = new Icon(path);
+                notifyIcon.Icon = new Icon(path);
+                notifyIcon.Visible = true;
+                notifyIcon.BalloonTipText = "剪切板";
+                notifyIcon.Text = "剪切板";
+                notifyIcon.MouseDoubleClick += NotifyIcon_MouseClick;
             }
+            else
+            {
+                // 如果系统托盘图标不存在，则隐藏图标  
+                notifyIcon.Visible = false;
+            }
+        }
+        static int GetIconCount(string folderPath)
+        {
+            int count = 0;
+            try
+            {
+                // 获取文件夹中的所有文件  
+                var files = Directory.GetFiles(folderPath);
+                // 筛选出.ico文件  
+                var icons = files.Where(file => file.EndsWith(".ico"));
+                // 计算数量  
+                count = icons.Count();
+            }
+            catch (Exception ex)
+            {
+                // 输出错误信息，例如文件夹不存在或没有访问权限等  
+                Console.WriteLine($"出现错误: {ex.Message}");
+            }
+            return count;
+        }
+        static Array GetIcons(string folderPath)
+        {
+            string[] fileNames = Directory.GetFiles(folderPath, "*.ico");               
+            string[] icoFileNames = fileNames.Where(fileName => fileName.ToLower().EndsWith(".ico")).ToArray(); // 过滤出.ico文件
+            List<string> icoFileNamesOnly = new List<string>();  // 使用List<string>来保存文件名，因为我们不知道有多少个.ico文件 
+            foreach (string icoFileName in icoFileNames)
+            {                 
+                string fileNameOnly = System.IO.Path.GetFileName(icoFileName);// 获取文件名并添加到列表中 
+                icoFileNamesOnly.Add(fileNameOnly);
+            }             
+            return icoFileNamesOnly.ToArray();// 将列表转换为数组并返回 
         }
         private void contextMenu()
         {
@@ -153,22 +442,22 @@ namespace WpfClipboard
             System.Windows.Forms.ToolStripMenuItem exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             exitMenuItem.Text = "退出";
             exitMenuItem.Click += new EventHandler(exitMenuItem_Click);
-           
-            System.Windows.Forms.ToolStripMenuItem settingMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            settingMenuItem.Text = "设置";
-            settingMenuItem.Click += new EventHandler(settingMenuItem_Click);
 
-            System.Windows.Forms.ToolStripMenuItem hideMenumItem = new System.Windows.Forms.ToolStripMenuItem();
+            /* System.Windows.Forms.ToolStripMenuItem settingMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+             settingMenuItem.Text = "设置";
+             settingMenuItem.Click += new EventHandler(settingMenuItem_Click);*/
+
+            System.Windows.Forms.ToolStripMenuItem hideMenumItem = new System.Windows.Forms.ToolStripMenuItem();           
             hideMenumItem.Text = "隐藏";
             hideMenumItem.Click += new EventHandler(hideMenumItem_Click);
 
             System.Windows.Forms.ToolStripMenuItem showMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             showMenuItem.Text = "显示";
-            showMenuItem.Click += new EventHandler(showMenuItem_Click);
-
+            showMenuItem.Click += new EventHandler(showMenuItem_Click); 
+       
             cms.Items.Add(showMenuItem);
             cms.Items.Add(hideMenumItem);
-            cms.Items.Add(settingMenuItem);
+            //cms.Items.Add(settingMenuItem);
             cms.Items.Add(exitMenuItem);
         }
         private void settingMenuItem_Click(object sender, EventArgs e)
@@ -178,29 +467,34 @@ namespace WpfClipboard
         }
         private void exitMenuItem_Click(object sender, EventArgs e)
         {
-            System.Windows.Application.Current.Shutdown();
+            Close();
+            Environment.Exit(0);
+            Application.Current.Shutdown();
+            
         }
 
         private void hideMenumItem_Click(object sender, EventArgs e)
         {
+            flagAltV = false;
             this.Visibility = Visibility.Collapsed;
         }
 
         private void showMenuItem_Click(object sender, EventArgs e)
         {
+            flagAltV = true;
             this.Visibility = Visibility.Visible;
         }
         private void NotifyIcon_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            tag = !tag;
-            if (tag)
+            //MessageBox.Show(this.Visibility+"");
+            if (this.Visibility == Visibility.Visible)
             {
-                this.Visibility = Visibility.Visible;
+                Application.Current.MainWindow.Hide();
             }
             else
             {
-                this.Visibility = Visibility.Collapsed;
-            }           
+                Application.Current.MainWindow.Show();
+            }         
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -269,7 +563,7 @@ namespace WpfClipboard
                                     AddClipboardItem(clipboardItem);
                                 }
                                 //文本内容检测
-                                else   if (System.Windows.Clipboard.ContainsText(TextDataFormat.Html))
+                                else if (System.Windows.Clipboard.ContainsText(TextDataFormat.Html))
                                 {
                                     ClipboardItem clipboardItem = new ClipboardItem();
                                     clipboardItem.Type = ClipboardType.HtmlText;
@@ -296,7 +590,7 @@ namespace WpfClipboard
                                 }*/
                             }
                         
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                // LogHelper.Instance._logger.Error(ex);
                             }
@@ -328,9 +622,14 @@ namespace WpfClipboard
         {
             using (MemoryStream memoryStream = new MemoryStream())
             {
+                try {
+                    image.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Bmp);
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+                }
+                catch (Exception) { 
+                }
                 // 将 System.Drawing.Image 保存到内存流中
-                image.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Bmp);
-                memoryStream.Seek(0, SeekOrigin.Begin);
+               
 
                 // 创建一个 BitmapSource
                 BitmapImage bitmapImage = new BitmapImage();
@@ -564,31 +863,38 @@ namespace WpfClipboard
         }
         private void onCope(ClipboardItem clipboardItem)
         {
-            ICopy = 1;
-            switch (clipboardItem.Type)
+            try
             {
-                case ClipboardType.Text:
-                    System.Windows.Forms.Clipboard.SetText(clipboardItem.Data.ToString());
-                    break;
-                case ClipboardType.HtmlText:
-                    System.Windows.Forms.Clipboard.SetData(DataFormats.UnicodeText, clipboardItem.Text);
-                    System.Windows.Forms.Clipboard.SetData(DataFormats.Html, clipboardItem.Data.ToString());
 
-                    //再帮我加个状态栏和exe文件显示图标把
+                ICopy = 1;
+                switch (clipboardItem.Type)
+                {
+                    case ClipboardType.Text:
+                        System.Windows.Forms.Clipboard.SetText(clipboardItem.Data.ToString());
+                        break;
+                    case ClipboardType.HtmlText:
+                        System.Windows.Forms.Clipboard.SetData(DataFormats.UnicodeText, clipboardItem.Text);
+                        System.Windows.Forms.Clipboard.SetData(DataFormats.Html, clipboardItem.Data.ToString());
 
-                    //Clipboard.SetData(DataFormats.Rtf, clipboardItem.Data.ToString());
-                    break;
-                case ClipboardType.File:
-                    Clipboard.SetFileDropList((StringCollection)clipboardItem.Data);
-                    break;
-                case ClipboardType.Image:
-                    Clipboard.SetImage((BitmapSource)clipboardItem.Data);
-                    break;
+                        //Clipboard.SetData(DataFormats.Rtf, clipboardItem.Data.ToString());
+                        break;
+                    case ClipboardType.File:
+                        System.Windows.Forms.Clipboard.SetFileDropList((StringCollection)clipboardItem.Data);
+                        break;
+                    case ClipboardType.Image:
+                        Clipboard.SetImage((BitmapImage)clipboardItem.Data);
+                        break;
+                }
+                clipboardItems.Remove(clipboardItem);
+                clipboardItems.Insert(0, clipboardItem);
+                ShuaXin();
+                ICopy = 0;
             }
-            clipboardItems.Remove(clipboardItem);
-            clipboardItems.Insert(0, clipboardItem);
-            ShuaXin();
-            ICopy = 0;
+            catch
+            {
+
+            }
+
         }
         private void onDelete(Item item,ClipboardItem clipboardItem)
         {

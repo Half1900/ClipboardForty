@@ -1,4 +1,4 @@
-﻿<Window x:Class="WpfClipboard.MainWindow"
+﻿<Window x:Class="WpfClipboard.ClipForty"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,16 +7,18 @@
         mc:Ignorable="d"
         Name="win"
         Topmost="True"
-        ShowInTaskbar="False"
-        ShowActivated="True"
+        ShowActivated="True" 
         AllowsTransparency="True"
         WindowStyle="None"
         Title="MainWindow" 
-        Height="509" 
+        Height="468" 
         Width="355"
+        ResizeMode="NoResize"
         Loaded="Window_Loaded"
         Cursor="Hand"
         MouseMove="Grid_MouseMove"
+       
+     
         >
     <Window.Resources>
         <ResourceDictionary >
@@ -34,9 +36,16 @@
         <SolidColorBrush Opacity="0.5" Color="Transparent"/>
     </Window.Background>
     <Grid>
-        <Border CornerRadius="5" 
-            BorderThickness="2" 
-            BorderBrush="Gray">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="11*"/>
+            <ColumnDefinition Width="60*"/>
+        </Grid.ColumnDefinitions>
+        <Border CornerRadius="2" 
+            BorderThickness="3"  
+            BorderBrush="#b1b1b2" 
+            Grid.ColumnSpan="2" 
+            Opacity="0.99"
+            >
             <Border.Background>
                 <SolidColorBrush Color="#eeeef0"/>
             </Border.Background>
@@ -49,25 +58,119 @@
                         <RowDefinition Height="35"/>
                         <RowDefinition Height="35"/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="closeBtn" 
-                            Grid.Row="0" 
+                    <Button x:Name="closeBtn"  
                             Style="{DynamicResource CloseButtonStyle}" 
                             Width="20" 
                             Height="20" 
-                            HorizontalAlignment="Right" 
+                            HorizontalAlignment="Left" 
                             Opacity="1" 
-                            VerticalAlignment="Top" 
-                            Margin="1" 
-                            Background="Transparent" 
+                            VerticalAlignment="Center" 
+                            Margin="326,0,3,0" 
+                            Background="Transparent"                             
                             Click="closeBtn_Click"/>
+                    <Path 
+                        
+                        x:Name="setting"
+                        Margin="5,5,0,5"  
+                      Height="20"  
+                      Width="20"  
+                      HorizontalAlignment="Left"  
+                      Data="M538.56 72.544a67.2 67.2 0 0 1 66.944 61.12l2.912 32.48 7.456 2.112c22.944 6.944 45.12 16.16 66.144 27.488l6.304 3.52 25.056-20.896a67.2 67.2 0 0 1 86.336 0.192l4.256 3.904 37.568 37.568a67.2 67.2 0 0 1 4.096 90.56l-20.928 25.056 3.584 6.368c11.328 21.024 20.544 43.2 27.456 66.144l2.08 7.392 32.48 2.944a67.2 67.2 0 0 1 60.992 62.016l0.16 4.896v53.184a67.2 67.2 0 0 1-61.12 66.912l-32.512 2.912-2.08 7.456a357.12 357.12 0 0 1-27.488 66.144l-3.552 6.304 20.928 25.056a67.2 67.2 0 0 1-0.192 86.336l-3.904 4.256-37.568 37.568a67.2 67.2 0 0 1-90.592 4.064l-25.056-20.896-6.304 3.552a357.12 357.12 0 0 1-66.144 27.488l-7.456 2.08-2.912 32.48a67.2 67.2 0 0 1-62.016 60.992l-4.896 0.16h-53.184a67.2 67.2 0 0 1-66.912-61.152l-2.944-32.48-7.36-2.08a357.12 357.12 0 0 1-66.176-27.456l-6.368-3.584-25.024 20.928a67.2 67.2 0 0 1-86.336-0.192l-4.256-3.904-37.568-37.568a67.2 67.2 0 0 1-4.064-90.592l20.864-25.056-3.52-6.304a357.12 357.12 0 0 1-27.488-66.144l-2.112-7.456-32.448-2.912a67.2 67.2 0 0 1-60.992-62.016l-0.16-4.896v-53.184a67.2 67.2 0 0 1 61.152-66.912l32.448-2.944 2.112-7.36c6.912-22.976 16.128-45.12 27.456-66.176l3.552-6.368-20.896-25.024a67.2 67.2 0 0 1 0.192-86.336l3.904-4.256 37.568-37.568a67.2 67.2 0 0 1 90.56-4.096l25.056 20.896 6.368-3.52a357.12 357.12 0 0 1 66.144-27.52l7.392-2.08 2.944-32.448a67.2 67.2 0 0 1 62.016-60.992l4.896-0.16zM512 343.456a168.544 168.544 0 1 0 0 337.088 168.544 168.544 0 0 0 0-337.088z m0 64a104.544 104.544 0 1 1 0 209.088 104.544 104.544 0 0 1 0-209.088z"  
+                      Fill="#5C5C66"  
+                      Stretch="Fill"
+                      MouseLeftButtonDown="Setting_Down"
+                      MouseLeftButtonUp="Setting_Up"
+                      MouseEnter="Enter_Show"
+                      MouseLeave="Enter_Leave"/>
+                   
+                    <Path 
+                        x:Name="top"
+                        Margin="30,5,0,5"  
+                        Height="20"  
+                        Width="20"  
+                        HorizontalAlignment="Left" 
+                        Fill="#E00BC4"
+                        Stretch="Fill"
+                        MouseLeftButtonUp="Top_Up"   
+                        MouseEnter="Enter_Top"
+                        MouseLeave="Leave_Top"                        
+                        Data="M557.728 688v288.384H466.24V688H227.52c-9.6 0-18.048-3.712-24.96-11.264A37.824 37.824 0 0 1 192 649.984c0-48.768 14.432-92.704 43.584-131.84 29.12-38.976 61.92-58.56 98.56-58.56V200.512c-19.296 0-35.84-7.552-50.048-22.656a76.16 76.16 0 0 1-21.12-53.6c0-20.672 7.04-38.4 21.12-53.6 13.984-14.976 30.72-22.656 50.048-22.656h355.584c19.296 0 35.84 7.552 50.048 22.656 13.984 15.104 21.152 32.928 21.152 53.6 0 20.672-7.04 38.4-21.12 53.6-14.112 15.232-30.784 22.656-50.08 22.656v258.944c36.64 0 69.568 19.584 98.56 58.56A215.424 215.424 0 0 1 832 649.984c0 10.272-3.456 19.328-10.528 26.752-7.04 7.424-15.36 11.264-24.96 11.264H557.76z"
+                        />
+
+                    <Path 
+                        x:Name="statusBar"
+                        Margin="55,3,0,3"  
+                        Height="20"  
+                        Width="20"  
+                        HorizontalAlignment="Left"  
+                        Fill="#E00BC4"
+                        Stretch="Fill"
+                        MouseLeftButtonUp="Bar_Up"   
+                        MouseEnter="Enter_Bar"
+                        MouseLeave="Leave_Bar"                           
+                        Data="M1024 365.714286v512a73.142857 73.142857 0 0 1-73.142857 73.142857H73.142857a73.142857 73.142857 0 0 1-73.142857-73.142857V365.714286h1024z m-73.142857-292.571429a73.142857 73.142857 0 0 1 73.142857 73.142857v146.285715H0V146.285714a73.142857 73.142857 0 0 1 73.142857-73.142857h877.714286zM365.714286 146.285714H73.142857v73.142857h292.571429V146.285714z m292.571428 0H438.857143v73.142857h219.428571V146.285714z m292.571429 0h-219.428572v73.142857h219.428572V146.285714z"
+                        />
+  
+                    <Path 
+                        x:Name="backTop"
+                        Margin="105,3,0,3"  
+                        Height="20"  
+                        Width="20"  
+                        HorizontalAlignment="Left"  
+                        Fill="#5C5C66"
+                        Stretch="Fill"
+                        MouseLeftButtonUp="BackTop_Up"   
+                        MouseEnter="Enter_BackTop"
+                        MouseLeave="Leave_BackTop"                        
+                        Data="M533.204945 247.840277c-11.435995-13.314876-30.184888-13.314876-41.620883 0l-342.378861 399.573165c-11.435995 13.319992-6.434858 24.25659 11.19346 24.25659l128.001279 0c17.621155 0 31.995203 14.379165 31.995203 32.007483l0 256.048609c0 17.626271 14.378142 32.00339 32.001343 32.00339l320.002175 0c17.628318 0 31.996226-14.378142 31.996226-32.00339L704.394887 703.678539c0-17.629342 14.376095-32.007483 32.005437-32.007483l127.999232 0c17.621155 0 22.624339-10.937621 11.185273-24.25659L533.204945 247.840277z"
+                        />
+                    
+                    <Path 
+                        x:Name="backBottom"
+                        Margin="130,3,0,3"  
+                        Height="20"  
+                        Width="20"  
+                        HorizontalAlignment="Left"  
+                        Fill="#5C5C66"
+                        Stretch="Fill"
+                        MouseLeftButtonUp="BackBottom_Up"   
+                        MouseEnter="Enter_BackBottom"
+                        MouseLeave="Leave_BackBottom" 
+                        RenderTransformOrigin="0.5,0.5"
+                        Data="M533.204945 247.840277c-11.435995-13.314876-30.184888-13.314876-41.620883 0l-342.378861 399.573165c-11.435995 13.319992-6.434858 24.25659 11.19346 24.25659l128.001279 0c17.621155 0 31.995203 14.379165 31.995203 32.007483l0 256.048609c0 17.626271 14.378142 32.00339 32.001343 32.00339l320.002175 0c17.628318 0 31.996226-14.378142 31.996226-32.00339L704.394887 703.678539c0-17.629342 14.376095-32.007483 32.005437-32.007483l127.999232 0c17.621155 0 22.624339-10.937621 11.185273-24.25659L533.204945 247.840277z" 
+                        >
+                        <Path.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform Angle="179.889"/>
+                                <TranslateTransform/>
+                            </TransformGroup>
+                        </Path.RenderTransform>
+                    </Path>
+
                     <TextBlock Text="剪贴板 By Forty" 
                                Foreground="Gray" 
                                VerticalAlignment="Center" 
                                HorizontalAlignment="Left" 
-                               Margin="5,0,0,0"  
+                               Margin="155,0,0,0"  
                                FontSize="15" 
                                AllowDrop="True" 
                                MouseLeftButtonDown="TextBlock_MouseLeftButtonDown"/>
+                    <Path 
+                        x:Name="img"
+                        Margin="80,5,0,5"  
+                        Height="20"  
+                        Width="20"  
+                        HorizontalAlignment="Left"  
+                        Fill="#5C5C66"
+                        Stretch="Fill"
+                        MouseLeftButtonUp="Img_Up" 
+                        MouseLeftButtonDown="Img_Down" 
+                        MouseEnter="Enter_Img"
+                        MouseLeave="Leave_Img"                           
+                        Data="M854.2208 110.7968 164.1472 110.7968c-72.4992 0-131.1744 58.7776-131.1744 131.1744l0 506.7776c0 72.4992 58.7776 131.1744 131.1744 131.1744l690.0736 0c72.4992 0 131.1744-58.7776 131.1744-131.1744L985.3952 241.9712C985.3952 169.5744 926.72 110.7968 854.2208 110.7968zM301.6704 278.9376c36.864 0 66.7648 29.9008 66.7648 66.7648s-29.9008 66.7648-66.7648 66.7648-66.7648-29.9008-66.7648-66.7648S264.8064 278.9376 301.6704 278.9376zM919.2448 638.1568c-8.6016 6.656-20.992 4.9152-27.5456-3.6864L744.5504 440.1152c-0.4096-0.6144-41.472-53.248-91.3408-48.2304-40.5504 4.608-80.384 47.8208-115.2 125.0304-36.864 82.0224-73.0112 124.8256-113.664 134.8608-46.08 11.1616-85.8112-20.0704-127.8976-53.3504l-5.3248-4.1984c-49.2544-38.6048-72.8064-29.7984-167.6288 63.0784-3.7888 3.7888-8.8064 5.632-13.7216 5.632-5.12 0-10.24-1.9456-14.0288-5.9392-7.5776-7.7824-7.4752-20.2752 0.3072-27.8528C182.1696 544.768 234.8032 500.0192 315.392 563.3024l5.4272 4.1984c35.9424 28.3648 66.9696 52.8384 94.208 46.08 27.136-6.656 56.4224-44.544 87.1424-112.7424 41.472-92.0576 90.8288-141.9264 146.944-148.0704 72.192-7.68 124.7232 60.7232 126.8736 63.6928l146.944 194.1504C929.4848 619.3152 927.8464 631.6032 919.2448 638.1568z"
+                        />
                     <Border  Grid.Row="2" 
                              DockPanel.Dock="Top" 
                              Height="28" 
@@ -75,10 +178,20 @@
                              CornerRadius="5" 
                              BorderThickness="1" 
                              Background="White"  
-                             Margin="30,0,90,0">
+                             Margin="30,0,89,0">
                         <Grid  VerticalAlignment="Center">
-                            <Grid x:Name="gridSearch"></Grid>
-                            <Path  Margin="10,0,0,0" 
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="97*"/>
+                                <ColumnDefinition Width="35*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid x:Name="gridSearch" Grid.ColumnSpan="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="9*"/>
+                                    <ColumnDefinition Width="34*"/>
+                                </Grid.ColumnDefinitions>
+                            </Grid>
+                            <Path  Margin="10,3,0,3" 
                                    Height="13" 
                                    Width="13" 
                                    HorizontalAlignment="Left"   
@@ -90,22 +203,40 @@
                                       BorderBrush="{x:Null}" 
                                       Background="{x:Null}"  
                                       Style="{x:Null}" 
-                                      Margin="30,0,10,0" 
+                                      Margin="30,0,8,0" 
                                       CaretBrush="#666"  
                                       VerticalAlignment="Center" 
                                       FontSize="14" 
                                       Foreground="#666" 
-                                      SelectionChanged="tbSearch_SelectionChanged" />
+                                      SelectionChanged="tbSearch_SelectionChanged" Grid.ColumnSpan="2" />
                         </Grid>
                     </Border>
+                    <CheckBox Margin="163,10,128,9"
+                              x:Name="statusBtn"
+                              Content="状态栏"                      
+                              Cursor="Hand"
+                              IsChecked="True"
+                              FontSize="13"
+                              Click="Status_Click" 
+                              Visibility="Hidden"
+                              Grid.Row="2"/>
+                    <CheckBox Margin="224,10,81,10"
+                              x:Name="topBtn"
+                              Content="置顶"                       
+                              Cursor="Hand"
+                              IsChecked="True"
+                              FontSize="13"
+                              Visibility="Hidden"
+                              Click="top_Click" Grid.Row="2"/>
+
                     <Border Cursor="Hand" 
                             MouseLeftButtonUp="Border_MouseLeftButtonDown"
                             Grid.Row="2" Margin="0,0,29,0" 
-                            Background="Red" 
+                            Background="#E00BC4" 
                             CornerRadius="5"  
                             HorizontalAlignment="Right"  
                             Height="28" 
-                            Width="55">
+                            Width="50">
                         <TextBlock Foreground="White" 
                                    Text="清空" FontSize="16" 
                                    HorizontalAlignment="Center" 
@@ -124,22 +255,22 @@
                             </TextBlock>
                         </Border>
                         <Border Margin="5,0" CornerRadius="10" Background="#FFF"  Height="30" Width="50.5">
-                            <TextBlock Text="全部" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="文本" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center">
 
                             </TextBlock>
                         </Border>
                         <Border Margin="5,0" CornerRadius="10" Background="#FFF"  Height="30" Width="50.5">
-                            <TextBlock Text="全部" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="富文本" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center">
 
                             </TextBlock>
                         </Border>
                         <Border Margin="5,0" CornerRadius="10" Background="#FFF"  Height="30" Width="50.5">
-                            <TextBlock Text="全部" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="图片" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center">
 
                             </TextBlock>
                         </Border>
                         <Border Margin="5,0" CornerRadius="10" Background="#FFF"  Height="30" Width="50.5">
-                            <TextBlock Text="全部" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="文件" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center">
 
                             </TextBlock>
                         </Border>
@@ -147,7 +278,11 @@
 
 
                 </Grid>
-                <ScrollViewer  VerticalScrollBarVisibility="Auto">
+                <ScrollViewer  
+                    VerticalScrollBarVisibility="Auto"
+                    Focusable="False"
+                    x:Name="scrollViewer"
+                    >
                     <StackPanel Orientation="Vertical"  >
                         <StackPanel x:Name="itemTopList" Orientation="Vertical">
                         </StackPanel>

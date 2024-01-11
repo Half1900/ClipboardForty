@@ -76,7 +76,7 @@ namespace WpfClipboard
                     Clipboard.SetImage((BitmapSource)image.Source);
                 }
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 //LogHelper.Instance._logger.Error(ex);
             }

@@ -7,9 +7,9 @@ namespace WpfClipboard
 {
     public class MainVM : ValidationBase
     {
-        MainWindow win;
+        ClipForty win;
         public static MainVM Instance;
-        public MainVM(MainWindow window)
+        public MainVM(ClipForty window)
         {
             win = window;
             ClipboardsItems = new ObservableCollection<ClipboardItem>();

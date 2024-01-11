@@ -84,12 +84,11 @@
                             BorderThickness="{TemplateBinding BorderThickness}"                                                    
                             Background="{TemplateBinding Background}"                        
                             Padding="0">
-                        <ScrollViewer Focusable="False"
+                        <ScrollViewer Focusable="False"                                      
                                       VerticalScrollBarVisibility="Auto">
                             <ItemsPresenter MinWidth="{Binding ElementName=win, Path=Width}" x:Name="ItemsPresenter"/>
                         </ScrollViewer>
                     </Border>
-
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

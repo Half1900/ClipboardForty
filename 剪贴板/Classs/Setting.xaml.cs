@@ -1,5 +1,7 @@
 ﻿
 using Microsoft.Win32;
+using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using WpfClipboard;
@@ -14,22 +16,29 @@ namespace Clipboards
         Config con=new Config();
         public Setting()
         {
-            InitializeComponent();
-            initial();
+            InitializeComponent();            
+            Topmost=true;
+                       
+            //Top = System.Windows.SystemParameters.PrimaryScreenHeight - this.Height - 50;
+            //Left = System.Windows.SystemParameters.PrimaryScreenWidth - this.Width - 20;
+            
+            Initial();
         }
 
-        private void initial()
+        private void Initial()
         {
-            //checkbox_auto_start.IsChecked = con.readbool("auto_start");
-            checkbox_auto_start.IsChecked = con.read_auto_start();
-            //checkbox_taskBar.IsChecked = con.readbool("taskbar_state");
+            checkbox_auto_start.IsChecked = con.readbool("auto_starts") == 1 ? true : false; //con.read_auto_starts();//
+            bool tag =(bool)checkbox_auto_start.IsChecked;
+            if (tag) con.add_auto_start();
+            else con.del_auto_start();
         }
         private void CheckBox_Click(object sender, RoutedEventArgs e)
         {
-            bool auto_start=(bool)checkbox_auto_start.IsChecked;      
-            con.write("auto_start",auto_start);            
-            if (auto_start == true) con.add_auto_start();
+            bool auto_starts=(bool)checkbox_auto_start.IsChecked;      
+            con.write("auto_starts",auto_starts);            
+            if(auto_starts) con.add_auto_start();
             else con.del_auto_start();
+            
         }
 
         private void TaskBar_Click(object sender, RoutedEventArgs e)
@@ -64,6 +73,5 @@ namespace Clipboards
         {
             this.Close();
         }
-
     }
 }
